@@ -25,3 +25,20 @@ This project is a basic e-commerce web application built using Node.js, Express,
 
 ## Folder Structure
 
+TAP_PROJECT/
+│
+├── controllers/
+├── models/
+├── routes/
+├── middleware/
+├── public/
+│ ├── index.html
+│ ├── login.html
+│ ├── register.html
+│ ├── admin.html
+│ ├── order.html
+│ └── style.css
+├── server.js
+├── .env (excluded from GitHub)
+├── .gitignore
+└── package.json
