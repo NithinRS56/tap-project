@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Place Order</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Place Your Order</h2>
+  <div id="cartPreview"></div>
+  <button onclick="placeOrder()">Place Order</button>
+  <p id="message"></p>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "customer") {
+      document.body.innerHTML = "<p>Access denied. Login as customer.</p>";
+      throw new Error("Unauthorized");
+    }
+
+    async function loadCart() {
+      const res = await fetch("/api/cart", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      const preview = document.getElementById("cartPreview");
+
+      if (!data.items || data.items.length === 0) {
+        preview.innerHTML = "<p>Your cart is empty.</p>";
+        return;
+      }
+
+      let total = 0;
+      data.items.forEach(item => {
+        total += item.product.price * item.quantity;
+        preview.innerHTML += `
+          <p>${item.product.name} - ₹${item.product.price} × ${item.quantity}</p>
+        `;
+      });
+
+      preview.innerHTML += `<h3>Total: ₹${total}</h3>`;
+    }
+
+    async function placeOrder() {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      document.getElementById("message").innerText = data.message || data.error;
+
+      if (res.ok) {
+        document.getElementById("cartPreview").innerHTML = "";
+      }
+    }
+
+    loadCart();
+  </script>
+</body>
+</html>

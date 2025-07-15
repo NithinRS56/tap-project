@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin – Add Product</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Add New Product</h2>
+  <form id="productForm">
+    <input type="text" id="name" placeholder="Product Name" required>
+    <input type="text" id="description" placeholder="Description" required>
+    <input type="number" id="price" placeholder="Price" required>
+    <input type="text" id="category" placeholder="Category" required>
+    <button type="submit">Add Product</button>
+  </form>
+  
+  <p id="message"></p>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "admin") {
+      document.body.innerHTML = "<p>Access denied. Login as admin.</p>";
+      throw new Error("Unauthorized");
+    }
+
+    const form = document.getElementById("productForm");
+    const msg = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: document.getElementById("name").value,
+          price: parseFloat(document.getElementById("price").value),
+          category: document.getElementById("category").value,
+        })
+      });
+
+      const data = await res.json();
+      msg.innerText = data.message || data.error;
+
+      if (res.ok) {
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
